@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Agar1:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/Agar1_war</output-path>
+    <root id="archive" name="Agar1_war.war">
+      <element id="artifact" artifact-name="Agar1:war exploded" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="javax.websocket-api-1.1" />
+          <element id="library" level="project" name="gson-2.8.2" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
