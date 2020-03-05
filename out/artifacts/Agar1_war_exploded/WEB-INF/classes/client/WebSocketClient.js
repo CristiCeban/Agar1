@@ -27,13 +27,16 @@ class WebSocketClient {
                     id = msg.substring(3);
                 } else if (msg.includes("balls:")){
                     let toSearch = msg.substring(6);
-                    var res = toSearch.split(";")
+                    let res = toSearch.split(";");
                     ballToEat.set(res[0], new Ball(res[1],res[2],RAD_BALL_TO_EAT));
                 }
                 else if (msg.includes("ballP:")){
                     let toSearch = msg.substring(6);
-                    var res = toSearch.split(";");
+                    let res = toSearch.split(";");
                     ballPlayers.set(res[0], new Ball(res[1], res[2], res[3]));
+                }
+                else if (msg.includes("alert")){
+                    alert("You were eaten!");
                 }
                 else if (msg.includes("close:")){
                     ballPlayers.delete(msg.substring(6));
@@ -68,6 +71,7 @@ class WebSocketClient {
             console.error('webSocket is not open. readyState=' + this.webSocket.readyState);
         }
     }
+    //
 
     disconnect() {
         if (this.webSocket.readyState === WebSocket.OPEN) {

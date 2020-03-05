@@ -1,22 +1,20 @@
 package Server;
 
+/**Ball is a class to simulate ball.
+ * 1-st member x - it's the x position of the center of the Ball.
+ * 2-nd member y - it's the y position of the center of the Ball.
+ * 3-nd member r - it-s the radius of ball.
+ */
 public class Ball {
+
     private float x;
     private float y;
     private float r;
-    private boolean isEaten;
 
     public Ball(float x, float y, float r) {
         this.x = x;
         this.y = y;
         this.r = r;
-        this.isEaten = false;
-    }
-    public Ball(float x, float y, float r,boolean isEaten) {
-        this.x = x;
-        this.y = y;
-        this.r = r;
-        this.isEaten = isEaten;
     }
 
     public float getX() {
@@ -43,11 +41,4 @@ public class Ball {
         this.r = r;
     }
 
-    public boolean isEaten() {
-        return isEaten;
-    }
-
-    public void setEaten(boolean eaten) {
-        isEaten = eaten;
-    }
 }

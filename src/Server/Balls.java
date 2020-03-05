@@ -1,18 +1,21 @@
 package Server;
 
-import java.util.HashMap;
+import org.jetbrains.annotations.NotNull;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**Balls it's a class which si
+ *
+ */
 public class Balls {
-    public HashMap<String,Ball> hashMapBalls;
+    public ConcurrentHashMap<String,Ball> hashMapBalls;
     Random randomValue = new Random();
     double precision = 1000D;
     public int n;
     float x,y;
     Balls(int n){
         this.n = n;
-        hashMapBalls = new HashMap<>();
+        hashMapBalls = new ConcurrentHashMap<>();
         for(int i = 0;i<n;i++)
             generateBall(i);
     }
@@ -20,7 +23,7 @@ public class Balls {
         x = (float) ((randomValue.nextInt((int) ((Constants.MAX_WIDTH - Constants.MIN_WIDTH) * precision + 1)) + Constants.MIN_WIDTH * precision)/precision);
         y = (float) ((randomValue.nextInt((int) ((Constants.MAX_HEIGHT - Constants.MIN_HEIGHT) * precision + 1)) + Constants.MIN_HEIGHT * precision)/precision);
     }
-    public synchronized void generateBall(int i,ConcurrentHashMap<String,Ball> map){
+    public synchronized void generateBall(int i, @NotNull ConcurrentHashMap<String,Ball> map){
         //TODO GENERAREA NORMALA
         for(Ball ball : map.values()){
             generateCoord();
