@@ -1,5 +1,5 @@
 class WebSocketClient {
-
+//TODO make good generation of the ball.
     constructor(protocol, hostname, port, endpoint) {
         this.webSocket = null;
         this.protocol = protocol;
@@ -22,9 +22,10 @@ class WebSocketClient {
 
             this.webSocket.onmessage = function (event) {
                 var msg = event.data;
-                console.log('onmessage::' + JSON.stringify(msg, null, 4));
+                //console.log('onmessage::' + JSON.stringify(msg, null, 4));
                 if (msg.includes("id:")) {
                     id = msg.substring(3);
+                    console.log("IDReceived"+id);
                 } else if (msg.includes("balls:")){
                     let toSearch = msg.substring(6);
                     let res = toSearch.split(";");
@@ -36,11 +37,13 @@ class WebSocketClient {
                     ballPlayers.set(res[0], new Ball(res[1], res[2], res[3]));
                 }
                 else if (msg.includes("alert")){
+                    console.log("Message alert:" + JSON.stringify(msg,null,4));
                     alert("You were eaten!");
+                    noLoop();
                 }
                 else if (msg.includes("close:")){
                     ballPlayers.delete(msg.substring(6));
-                    Console.log(msg.substring(6));
+                    //console.log(msg.substring(6));
                 }
             };
 
@@ -58,6 +61,17 @@ class WebSocketClient {
         }
     }
 
+    disconnect() {
+        if (this.webSocket.readyState === WebSocket.OPEN) {
+            alert("Try again,press F5");
+            this.webSocket.close();
+            ballPlayers.delete(id)
+
+        } else {
+            console.error('webSocket is not open. readyState=' + this.webSocket.readyState);
+        }
+    }
+
     getStatus() {
         return this.webSocket.readyState;
     }
@@ -69,18 +83,10 @@ class WebSocketClient {
 
         } else {
             console.error('webSocket is not open. readyState=' + this.webSocket.readyState);
+            alert("Connection error,retry!");
         }
     }
-    //
 
-    disconnect() {
-        if (this.webSocket.readyState === WebSocket.OPEN) {
-            this.webSocket.close();
-            ballPlayers.delete(id)
 
-        } else {
-            console.error('webSocket is not open. readyState=' + this.webSocket.readyState);
-        }
-    }
 }
 

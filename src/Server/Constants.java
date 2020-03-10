@@ -19,4 +19,5 @@ public class Constants {
     static final float MAX_HEIGHT = 200;
     static final float MIN_HEIGHT = -200;*/
     static final float RAD_BALL_TO_EAT = 16;
+    static final float  RAD_INIT_BALL = 64;
 }

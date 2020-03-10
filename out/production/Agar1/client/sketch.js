@@ -2,16 +2,16 @@ let ballPlayer;
 const ballPlayers = new Map();
 let ballToEat = new Map();
 let zoom = 1;
-let id;
+let id = -1;
+let x;
+let y;
 let client = new WebSocketClient('ws', '127.0.0.1', 8080, '/Agar1_war_exploded/endpoint');
 client.connect();
 
-function rand(){
-    let x = Math.floor(Math.random()*2*MAX_WIDTH) + MIN_WIDTH;
-    let y = Math.floor(Math.random()*2*MAX_HEIGHT) + MIN_HEIGHT;
-    ballPlayer = new Ball(x,y, RAD_INIT_BALL);
+function rand() {
+    x = Math.floor(Math.random()*2*MAX_WIDTH) + MIN_WIDTH;
+    y = Math.floor(Math.random()*2*MAX_HEIGHT) + MIN_HEIGHT;
 }
-
 function myText(){
     background(0);
     textSize(32);
@@ -37,39 +37,55 @@ function displayBall(){
 }
 
 function displayPlayers (){
-    for (let [key,value] of ballPlayers) {
-        if(id != key) {
+    for (let [key,ball] of ballPlayers) {
+        if(parseInt(id) !== parseInt(key)) {
+            console.log("!beforeEat!");
             fill(0,0,255);
-            value.show();
-            if(ballPlayer.eats(ballPlayers.get(key))){
+            ball.show();
+            //console.log("otherBallX:"+ball.pos.x+" Y:"+ball.pos.y+" R:"+ball.r);
+            if (ballPlayer.eatsPlayer(ball)){
+                //console.log("xPlayer:"+ballPlayer.pos.x+";yPlayer"+ballPlayer.pos.y+"rPlayer:"+ballPlayer.r);
+                //console.log("xBall:"+ball.pos.x+";yBall"+ball.pos.y+"rBall:"+ball.r);
                 client.webSocket.send("pEaten:"+key);
+                console.log("pEaten:"+key);
+                ballPlayers.delete(key);
             }
+            console.log("!AfterEat!");
         }
     }
 }
 
 function displayBalls () {
-    for(let [key,value] of ballToEat){
-        value.show();
-        if (ballPlayer.eats(ballToEat.get(key))) {
+    for(let [key,ball] of ballToEat){
+        ball.show();
+        if (ballPlayer.eatsPlayer(ball)) {
             client.webSocket.send("bEaten:"+key);
             ballToEat.delete(key);
         }
-
     }
 }
 function setup() {
     createCanvas(window.innerWidth - 20,  window.innerHeight - 20);
     frameRate(FPS);
     rand();
+    ballPlayer = new Ball(x,y, RAD_INIT_BALL);
+    setTimeout(function(){
+        client.send("start:"+x.toFixed(2)+";"+y.toFixed(2));
+    }, 100);
 }
 
 function draw() {
+    console.log("beforeText");
     myText();
+    console.log("afterText");
     transl();
+    console.log("afterTranslation");
     displayBall();
+    console.log("afterBall");
     displayPlayers();
+    console.log("afterPlayers");
     displayBalls();
+    console.log("AfterBalls");
 }
 
 function windowResized() {

@@ -25,6 +25,18 @@ class Ball {
         }
     };
 
+    eatsPlayer = function(other) {
+        let d = p5.Vector.dist(this.pos, other.pos);
+        let rad = parseFloat(this.r) + parseFloat(other.r);
+        if (d < rad && parseFloat(this.r) > parseFloat(other.r)) {
+            var sum = PI * parseFloat(this.r) * parseFloat(this.r) + PI * parseFloat(other.r) * parseFloat(other.r);
+            this.r = sqrt(sum / PI);
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     show = function() {
         fill(255);
         ellipse(this.pos.x, this.pos.y, this.r * 2, this.r * 2);
