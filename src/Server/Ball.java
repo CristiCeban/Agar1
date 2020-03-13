@@ -1,11 +1,14 @@
 package Server;
 
-import java.util.Random;
 
 /**Ball is a class to simulate ball.
  * 1-st member x - it's the x position of the center of the Ball.
  * 2-nd member y - it's the y position of the center of the Ball.
  * 3-nd member r - it-s the radius of ball.
+ * @author Ceban Cristian
+ * @author cebancristi4444@gmail.com
+ * @version 1.2
+ * @since 1.0
  */
 public class Ball {
 
@@ -18,10 +21,8 @@ public class Ball {
         this.y = y;
         this.r = r;
     }
-    public Ball(float r){
-        generateCoord();
-        this.r = r;
-    }
+    /**Standard getter and setter.*/
+
     public float getX() {
         return x;
     }
@@ -44,12 +45,5 @@ public class Ball {
 
     public void setR(float r) {
         this.r = r;
-    }
-
-    private synchronized void generateCoord(){
-        Random randomValue = new Random();
-        double precision = 1000D;
-        x = (float) ((randomValue.nextInt((int) ((Constants.MAX_WIDTH - Constants.MIN_WIDTH) * precision + 1)) + Constants.MIN_WIDTH * precision)/precision);
-        y = (float) ((randomValue.nextInt((int) ((Constants.MAX_HEIGHT - Constants.MIN_HEIGHT) * precision + 1)) + Constants.MIN_HEIGHT * precision)/precision);
     }
 }
