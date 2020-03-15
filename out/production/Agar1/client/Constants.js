@@ -1,7 +1,7 @@
-/**Constants of Game Board Width and Height
- * It's also have radius of "simple" ball
- * what are eaten by player and initial radius
- * of the new player's ball.
+/**Constants of the Game Board - Width and Height
+ * It also has the radius of the "simple" ball
+ * which are eaten by the player and it has
+ * the initial radius of the new player's ball.
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
  * @version 1.2
