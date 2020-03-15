@@ -1,4 +1,13 @@
 # Agar1
+My app is a clone of agarIo. It allows to play as a ball with other players online.
+It allows also the base game mechanic from AgarIo, like:
+To eat another ball.
+To eat another player.
+To move on canvas.
+View to be translated on the ball (in the center of the screen).
+To grow smoothly.
+To constrain the player in game Canvas.
+To display the radius (+ the position and velocity).
 My app consists of 2 parts, Client-side, which is implemented in JS using WebSocket for connection to server and p5.js lib for all the graphics and renders. The server side is implemented in Java using javax.websocket JSR 356 API.
 WebSockets provide a bidirectional, full-duplex communications channel
 that operates over HTTP through a single TCP/IP socket connection.
