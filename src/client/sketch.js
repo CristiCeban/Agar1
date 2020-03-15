@@ -1,9 +1,9 @@
-/**I use p5.js for graphic.
+/**I use p5.js for graphics.
  * p5.js is a JavaScript library for creative coding,
  * with a focus on making coding accessible and inclusive for
  * artists, designers, educators, beginners, and anyone else!
  * p5.js is free and open-source.
- * p5.js consist from 2 important function: setup() and draw().
+ * p5.js consists from 2 important functions: setup() and draw().
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
  * @version 1.2
@@ -19,30 +19,33 @@ let ballPlayer;
  */
 const ballPlayers = new Map();
 
-/**A JS Map to store "simply" balls
+/**A JS Map to store "simple" balls
  *
  * @type {Map<String, Ball>}
  */
 let ballToEat = new Map();
 
-/**Initial zoom on the ballPlayer,to grow smoothly on screen.
+/**Initial zoom on the ballPlayer to grow smoothly on screen.
  *
  * @type {number}
  */
 let zoom = 1;
 
 /**Initial ID of the ball is set on -1,after the connection,
- * the server assigns an ID to the client
+ * the server assigns an ID to the client.
+ *
  * @type {number}
  */
 let id = -1;
 
-/**The X coordinates of the center of player's ball.
+/**The coordinate X of the center of the player's ball.
+ *
  * @type {number}
  */
 let x;
 
-/**The Y coordinates of the center of player's ball.
+/**The coordinate Y of the center of the player's ball.
+ *
  * @type {number}
  */
 let y;
@@ -52,71 +55,73 @@ let y;
  *
  * @type {WebSocketClient}
  */
-let client = new WebSocketClient('ws', '127.0.0.1', 8080, '/Agar1_war_exploded/endpoint');
+let client = new WebSocketClient('ws', 'localhost', 8080, '/Agar1_war/endpoint');
 
 /**Connection to the server.*/
 client.connect();
 
-/**Client generate coordinates of center of player's ball.*/
+/**Client generates the coordinates of player's ball center.*/
 function rand() {
     x = Math.floor(Math.random()*2*MAX_WIDTH) + MIN_WIDTH;
     y = Math.floor(Math.random()*2*MAX_HEIGHT) + MIN_HEIGHT;
 }
 
-/**Function to display text on the canvas,
- * The coordinates of the center of player's ball,
+/**The function which displays the text on the canvas.
+ * The coordinates of the center of the player's ball,
  * the radius of the player's ball,
  * the velocity on X axis and Y axis.
  */
 function myText(){
-    /**Put the background color WHITE*/
+    /**Puts the background color WHITE*/
     background(0);
 
-    /**Assign the text size with 32 pixel.*/
+    /**Assigns the text size with 32 pixels.*/
     textSize(32);
 
-    /**Display the coordinates,radius*/
+    /**Displays the coordinates, radius*/
     text("X:"+ballPlayer.pos.x.toFixed(2)+"; Y:"+ballPlayer.pos.y.toFixed(2)
           +"; R:"+ballPlayer.r.toFixed(2), 10, 30);
 
-    /**Display the velocity on X axis and Y axis.*/
+    /**Displays the velocity on X axis and Y axis.*/
     text("VellX:"+ballPlayer.vel.x.toFixed(2)+";" +
           "VellY:"+ballPlayer.vel.y.toFixed(2),10,60);
 
 }
 
-/**Make the view of the world relative to the player.
+/**Makes the view of the world relative to the player.
  * Allows animations to be smooth.
  */
 function transl () {
-    /**Set view of the world relative to the player's ball*/
+    /**Sets view of the world relative to the player's ball*/
     translate(width / 2, height / 2);
 
-    /**Newzoom is the changed zoom if player eat another ball,
-     * either the ball is "simply" or another player.
-     * Because the initial radius of a player ball is 64 pixel,
-     * all changed are based on this number.
+    /**Newzoom is a changed zoom if player eats another ball,
+     * either the ball is "simple" or an another player.
+     * Because the initial radius of the player's ball is 64 pixels,
+     * all changes are based on this number.
+     *
      * @type {number}
      */
     let newzoom = 64 / ballPlayer.r;
 
-    /**Linear interpolate the vector zoom to another vector,
-     * the newzoom, it interpolate with coefficient 0.1.
-     * This allows animation to be smooth when player's ball grows.
+    /** The linear interpolation of vector zoom to another vector,
+     * the newzoom, is interpolating with coefficient 0.1.
+     * This allows a smooth animation when the player's ball is growing.
      */
     zoom = lerp(zoom, newzoom, 0.1);
 
     /**Zoom allows player's ball to be always rendered
-     * on the same size as initial (64 pixel on canvas),
-     * otherwise if real radius of player's ball changed.
-     * In other words,when a player is bigger,
-     * on the screen it remains the same,the smaller ball
-     * become smaller.
+     * on the same size as the initial one (radius - 64 pixels on canvas),
+     * If the radius of the player's ball is growing,
+     * from the visual point of view it stays the same (radius - 64 pixels)
+     * and this allows the rest of the balls to appear smaller on the player's canvas.
      */
     scale(zoom);
 
-    /**After the zoom and scall,it translate back the view
-     * of the world back to the player's center of ball.
+    /**After the zoom and scale were performed, the center of the ball is transposed
+     * from the screen center with ballPlayer.pos.x and ballPlayer.pos.y.
+     * Translate allows the center of the ball to be in the same point as the screen center.
+     * This is made with the purpose for all the game logic to be surrounded by the player's ball.
      */
     translate(-ballPlayer.pos.x, -ballPlayer.pos.y);
 }
@@ -127,32 +132,32 @@ function transl () {
 function displayBall(){
 
     /**Player sends his current position to the server
-     * Message have form "pos:X_coordinate;Y_coordinate;Radius".
+     * The form of the message is "pos:X_coordinate;Y_coordinate;Radius".
      */
     client.webSocket.send("pos:"+String(ballPlayer.pos.x)+";"+String(ballPlayer.pos.y)+";"+String(ballPlayer.r));
 
-    /**This function constrain the center of ball in the game
-     * canvas.Game canvas constants are stored in Constants.js.
+    /**This function constrains the ball center in the game canvas.
+     * The game canvas constants are stored in Constants.js.
      */
     ballPlayer.constrain();
 
-    /**Invoke the method show from Ball class,
-     * it permit to render the ball on canvas.
+    /**Invokes the method show from Ball class,
+     * it permits to render the ball on canvas.
      */
     ballPlayer.show();
 
-    /**If right click on mouse is pressed it update the player's ball.
-     * It move the ball across the canvas based on the direction of mouse.
+    /**If the right click of mouse is pressed it updates the player's ball.
+     * It moves the ball across the canvas based on the direction of mouse.
      */
     if (mouseIsPressed) {
         ballPlayer.update();
     }
 }
 
-/**This function display all the player's ball*/
+/**This function displays all the player's ball*/
 function displayPlayers (){
 
-    /**Iterate through Map of players balls.*/
+    /**Iterates through Map of players balls.*/
     for (let [key,ball] of ballPlayers) {
         /**If the key is different of the current player ID.*/
         if(parseInt(id) !== parseInt(key)) {
@@ -160,44 +165,44 @@ function displayPlayers (){
             fill(0,0,255);
             ball.show();
 
-            /**Check if current player (id)
-             * is eating the another one (key).
+            /**Checks if the current player (id)
+             * is eating the other one (key).
              */
             if (ballPlayer.eats(ball)){
-                /**Sent to server that key player was eaten.*/
+                /**Sends to server that the key player was eaten.*/
                 client.webSocket.send("pEaten:"+key);
 
-                /**Delete from client Map of players the key player.*/
+                /**Deletes from client Map of players the key player.*/
                 ballPlayers.delete(key);
             }
         }
     }
 }
 
-/**This function allows to display the "simply" balls.*/
+/**This function allows to display the "simple" balls.*/
 function displayBalls () {
-    /**Iterate through Map of "simply" balls.*/
+    /**Iterates through Map of "simple" balls.*/
     for(let [key,ball] of ballToEat){
-        /**Display the "simply" ball (key).*/
+        /**Displays the "simple" ball (key).*/
         ball.show();
 
-        /**Check if current player (id)
-         * is eating a "simply" ball (key).
+        /**Checks if current player (id)
+         * is eating a "simple" ball (key).
          */
         if (ballPlayer.eats(ball)) {
-            /**Send to server id of the "simply" ball that was eaten.
+            /**Sends to  server the id of the "simple" ball which was eaten.
              * Server will generate the another one with this id (key).
              */
             client.webSocket.send("bEaten:"+key);
 
-            /**Delete from Map of "simply" balls
-             * the ball what was eaten (key).*/
+            /**Deletes from Map of "simple" balls
+             * the ball which was eaten (key).*/
             ballToEat.delete(key);
         }
     }
 }
 
-/**Setup is one of 2 obligatory function in P5.js
+/**Setup is one of 2 obligatory functions in P5.js
  * The setup() function is called once when the program starts.
  * It's used to define initial environment properties such as
  * screen size and background color and to load media such as
@@ -209,59 +214,59 @@ function displayBalls () {
  */
 function setup() {
 
-    /**Create canvas on full Screen/*/
+    /**Creates canvas on the full Screen/*/
     createCanvas(window.innerWidth - 20,  window.innerHeight - 20);
 
-    /**Set frame rate to default (30) FPS is declared in Constants.js.*/
+    /**Sets the frame rate to default (30). FPS is declared in Constants.js.*/
     frameRate(FPS);
 
-    /**Generate random coordinate of the player's ball.*/
+    /**Generates the random coordinate of the player's ball.*/
     rand();
 
-    /**Create new ball based on the player's
+    /**Creates new ball based on the player's
      * random generated coordinates.
      * */
     ballPlayer = new Ball(x,y, RAD_INIT_BALL);
 
-    /**Here's a little trick,when he reach setTimeout,
-     * it set timeout (100 ms) to send to the server coordinates
-     * of a player's ball,and he enter in game,but connection
-     * is not established yet,so it allows to connection to be
-     * established before send the first message to the server.
-     * Setup is the first function called,because of it connection
-     * is not established yet.
-     * Message have form "start:X_coordinate,Y_coordinate"
+    /**Here's a little trick, when he reaches setTimeout,
+     * it sets timeout (100 ms) to send to the server coordinates
+     * of a player's ball, and he enters in game, but the connection
+     * has not been established yet, so it allows the connection to be
+     * established before the first message is sent to the server.
+     * Setup is the first function called, because of it, connection
+     * has not been established yet.
+     * The message form is "start:X_coordinate,Y_coordinate"
      */
     setTimeout(function(){
         client.send("start:"+x.toFixed(2)+";"+y.toFixed(2));
     }, 100);
 }
 
-/**Draw is another one of 2 obligatory function in P5.js
+/**Draw() is another one of the 2 obligatory functions in P5.js
  * Called directly after setup(), the draw() function
- * continuously executes the lines of code contained
+ * continuously executes the lines of code containing
  * inside its block until the program is stopped or
- * noLoop() is called (Is called when player was eaten
+ * noLoop() is called (Is called when one player was eaten
  * by another player).
  * Note: Draw() is called automatically and should
  * never be called explicitly.
  */
 function draw() {
-    /**Display on canvas the Text about the Player's ball.*/
+    /**Displays on canvas the Text about the Player's ball.*/
     myText();
 
-    /**Translate the view of canvas to the center of ball.*/
+    /**Translates the view of canvas to the center of ball.*/
     transl();
 
-    /**Display the player's ball (id) on canvas.*/
+    /**Displays the player's ball (id) on canvas.*/
     displayBall();
 
-    /**Display all the players on canvas and
-     * their interconnection with player.
+    /**Displays2 all the players on canvas and
+     * their interconnection with player (id).
      */
     displayPlayers();
 
-    /**Display all the "simply" balls on canvas and
+    /**Displays all the "simple" balls on canvas and
      * their interconnection with player.
      */
     displayBalls();

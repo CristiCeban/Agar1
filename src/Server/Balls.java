@@ -3,29 +3,29 @@ package Server;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**Balls it's a class which store all "simply" ball what are eaten.
- * It also have the method to generate coordinates x and y of a new ball
- * based on the ID of ball.On the start of server Balls generate all n balls,
- * And when a ball was eaten it will generate the new coordinates only for this ball.
+/**Balls it's a class which stores all "simple" ball which are eaten.
+ * It also has the method to generate coordinates x and y of a new ball
+ * based on the ID of the ball. On the start of server Balls generate all n balls,
+ * And when a ball is eaten it will generate the new coordinates only for this ball.
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
  * @version 1.2
  * @since 1.0
  */
 public class Balls {
-     /** It use a ConcurrentHashMap because it support
+     /** It uses a ConcurrentHashMap because it supports
       * full concurrency of retrievals and high expected concurrency for updates.
-      * We need this because server is running in multithreading and access to
-      * all balls need to be concurrency.
+      * We need this because server is running in multithreading and the access to
+      * all the balls need to be in concurrency.
       */
     public ConcurrentHashMap<String,Ball> hashMapBalls;
 
-    /**Random is used for generate the random float between the
+    /**Random is used to generate the random float between the
      * Max and Min Width/Height, which are constant.
      */
     private Random randomValue = new Random();
 
-    /**N store the number of "simply" ball*/
+    /**N store the number of "simple" balls*/
     public int n;
 
     /**X and Y are the coordinates which are needed to be generated.
@@ -33,20 +33,20 @@ public class Balls {
      */
     private float x,y;
 
-    /**Simply constructor to generate and store all n "simply" balls.
+    /**The simple constructor to generate and store all n "simple" balls.
      *
-     * @param n the number of "simply" ball.
+     * @param n the number of "simple" ball.
      */
     Balls(int n){
         this.n = n;
         hashMapBalls = new ConcurrentHashMap<>();
-        /**generate n balls with id = i and store them in Map.*/
+        /**generates n balls with id = i and stores them in Map.*/
         for(int i = 0;i<n;i++)
             generateBall(i);
     }
 
-    /**Function to generate coordinates.
-     * It assign the new values to x and y.
+    /** The function to generate coordinates.
+     * It assigns new values to x and y.
      */
     private synchronized void generateCoord(){
         /**Precision of the generated coordinates.*/
@@ -56,8 +56,8 @@ public class Balls {
     }
 
     /**Function to generate coordinates,
-     * create new ball with generated coordinates
-     * and store them in hashMapBalls.
+     * creates new balls with generated coordinates
+     * and stores them in hashMapBalls.
      */
     public synchronized void generateBall(int i){
         generateCoord();

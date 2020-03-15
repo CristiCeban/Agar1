@@ -1,9 +1,9 @@
-/**I use p5.js for graphic.
+/**I use p5.js for graphics.
  * p5.js is a JavaScript library for creative coding,
  * with a focus on making coding accessible and inclusive for
  * artists, designers, educators, beginners, and anyone else!
  * p5.js is free and open-source.
- * p5.js consist from 2 important function: setup() and draw().
+ * p5.js consists from 2 important functions: setup() and draw().
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
  * @version 1.2
@@ -19,30 +19,33 @@ let ballPlayer;
  */
 const ballPlayers = new Map();
 
-/**A JS Map to store "simply" balls
+/**A JS Map to store "simple" balls
  *
  * @type {Map<String, Ball>}
  */
 let ballToEat = new Map();
 
-/**Initial zoom on the ballPlayer,to grow smoothly on screen.
+/**Initial zoom on the ballPlayer to grow smoothly on screen.
  *
  * @type {number}
  */
 let zoom = 1;
 
 /**Initial ID of the ball is set on -1,after the connection,
- * the server assigns an ID to the client
+ * the server assigns an ID to the client.
+ *
  * @type {number}
  */
 let id = -1;
 
-/**The X coordinates of the center of player's ball.
+/**The coordinate X of the center of the player's ball.
+ *
  * @type {number}
  */
 let x;
 
-/**The Y coordinates of the center of player's ball.
+/**The coordinate Y of the center of the player's ball.
+ *
  * @type {number}
  */
 let y;
@@ -52,70 +55,71 @@ let y;
  *
  * @type {WebSocketClient}
  */
-let client = new WebSocketClient('ws', '127.0.0.1', 8080, '/Agar1_war_exploded/endpoint');
+let client = new WebSocketClient('ws', 'localhost', 8080, '/Agar1_war_exploded/endpoint');
 
 /**Connection to the server.*/
 client.connect();
 
-/**Client generate coordinates of center of player's ball.*/
+/**Client generates the coordinates of player's ball center.*/
 function rand() {
     x = Math.floor(Math.random()*2*MAX_WIDTH) + MIN_WIDTH;
     y = Math.floor(Math.random()*2*MAX_HEIGHT) + MIN_HEIGHT;
 }
 
-/**Function to display text on the canvas,
- * The coordinates of the center of player's ball,
+/**The function which displays the text on the canvas.
+ * The coordinates of the center of the player's ball,
  * the radius of the player's ball,
  * the velocity on X axis and Y axis.
  */
 function myText(){
-    /**Put the background color WHITE*/
+    /**Puts the background color WHITE*/
     background(0);
 
-    /**Assign the text size with 32 pixel.*/
+    /**Assigns the text size with 32 pixels.*/
     textSize(32);
 
-    /**Display the coordinates,radius*/
+    /**Displays the coordinates, radius*/
     text("X:"+ballPlayer.pos.x.toFixed(2)+"; Y:"+ballPlayer.pos.y.toFixed(2)
           +"; R:"+ballPlayer.r.toFixed(2), 10, 30);
 
-    /**Display the velocity on X axis and Y axis.*/
+    /**Displays the velocity on X axis and Y axis.*/
     text("VellX:"+ballPlayer.vel.x.toFixed(2)+";" +
           "VellY:"+ballPlayer.vel.y.toFixed(2),10,60);
 
 }
 
-/**Make the view of the world relative to the player.
+/**Makes the view of the world relative to the player.
  * Allows animations to be smooth.
  */
 function transl () {
-    /**Set view of the world relative to the player's ball*/
+    /**Sets view of the world relative to the player's ball*/
     translate(width / 2, height / 2);
 
-    /**Newzoom is the changed zoom if player eat another ball,
-     * either the ball is "simply" or another player.
-     * Because the initial radius of a player ball is 64 pixel,
-     * all changed are based on this number.
+    /**Newzoom is a changed zoom if player eats another ball,
+     * either the ball is "simple" or an another player.
+     * Because the initial radius of the player's ball is 64 pixels,
+     * all changes are based on this number.
+     *
      * @type {number}
      */
     let newzoom = 64 / ballPlayer.r;
 
-    /**Linear interpolate the vector zoom to another vector,
-     * the newzoom, it interpolate with coefficient 0.1.
-     * This allows animation to be smooth when player's ball grows.
+    /** The linear interpolation of vector zoom to another vector,
+     * the newzoom, is interpolating with coefficient 0.1.
+     * This allows a smooth animation when the player's ball is growing.
      */
     zoom = lerp(zoom, newzoom, 0.1);
 
     /**Zoom allows player's ball to be always rendered
-     * on the same size as initial (64 pixel on canvas),
-     * otherwise if real radius of player's ball changed.
-     * In other words,when a player is bigger,
-     * on the screen it remains the same,the smaller ball
-     * become smaller.
+     * on the same size as the initial one (radius - 64 pixels on canvas),
+     * If the radius of the player's ball is growing,
+     * from the visual point of view it stays the same (radius - 64 pixels)
+     * and this allows the rest of the balls to appear smaller on the player's canvas.
      */
     scale(zoom);
 
-    /**After the zoom and scall,it translate back the view
+    /**After the zoom and scale were performed, the center of the ball is transposed
+     * with ballPlayer.pos.x and ballPlayer.pos.y 
      * of the world back to the player's center of ball.
      */
     translate(-ballPlayer.pos.x, -ballPlayer.pos.y);

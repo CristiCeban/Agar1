@@ -10,15 +10,15 @@ import javax.websocket.server.ServerEndpoint;
  * WebSockets provide a bidirectional, full-duplex communications channel
  * that operates over HTTP through a single TCP/IP socket connection.
  * Server implementation also extends Thread for threads synchronization.
- * App is  used to run on servlet container such as apache Tomcat, Jetty, JBoss or GlassFish.
+ * The app is used to run on servlet container such as apache Tomcat, Jetty, JBoss or GlassFish.
  * I'm using apache tomcat.
- * Before using it you need to create WAR  or you can use mine in out/artifacts/Agar1_war_exploded.
- * This WAR, you need to deploy on servlet container such as Tomcat, Jetty, etc.
+ * Before using it you need to create WAR or you can use mine in out/artifacts/Agar1_war.
+ * You need to deploy this WAR, on servlet container such as Tomcat, Jetty, etc.
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
  * @version 1.2
  * @since 1.0
- * Javax.websocket it's working in 4 stages,every stage contains specific annotation,
+ * Javax.websocket is working in 4 stages, every stage contains a specific annotation,
  * OnOpen, OnClose, OnMessage, onError.
  * 1 more annotation ServerEndpoint.
  * The ServerEndpoint annotation a class level annotation is used to denote
@@ -27,23 +27,23 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint(value = "/endpoint")
 public class WebSocketServer extends Thread {
 
-    /**sessions is used to store all sessions what are connected to server.
-     * It use a ConcurrentHashMap because it support
+    /**sessions is used to store all sessions which are connected to server.
+     * It use a ConcurrentHashMap because it supports
      * full concurrency of retrievals and high expected concurrency for updates.
      * We need this because server is running in multithreading.
      */
     private static ConcurrentHashMap<String,Session> sessions = new ConcurrentHashMap<>();
 
     /**ballsPlayers is used to store all players ball on server.
-     * It use a ConcurrentHashMap for the same reason as sessions.
+     * It uses a ConcurrentHashMap for the same reason as sessions.
      */
     private static ConcurrentHashMap<String,Ball> ballsPlayers = new ConcurrentHashMap<>();
 
-    /**n store the number of afk balls, balls which are used to be eat.*/
+    /**n stores the number of afk balls, balls which are used to be eaten.*/
     private static int n = 100;
 
-    /**ballsToEat is a instance of Balls which are eaten,it's used for
-     * generating all "simple| balls and for storing them.
+    /**ballsToEat is a instance of Balls which are eaten, it's used to
+     * generate all "simple| balls and to store them.
      **/
     private static Balls ballsToEat = new Balls(n);
 
@@ -53,36 +53,36 @@ public class WebSocketServer extends Thread {
     /**OnOpen method level annotation is used to decorate a Java method
      * that wishes to be called when a new web socket session is open.
      *
-     * @param session is the session of Client-Server which are started from Client.
-     *                Client also use Websocket (Client was implemented in JavaScript).
+     * @param session is the session of Client-Server which is started from Client.
+     *                Client also uses Websocket (Client was implemented in JavaScript).
      */
     @OnOpen
     public synchronized void onOpen(@NotNull Session session) {
 
-        /**In the beginning current session is added to Sessions*/
+        /**In the beginning, current session is added to Sessions*/
         sessions.put(session.getId(),session);
 
-        /**Log the new connection*/
+        /**Logs the new connection*/
         System.out.println("onOpen::" + session.getId());
     }
 
     /** OnClose method level annotation is used to decorate a Java method
      * that wishes to be called when a web socket session is closing.
      *
-     * @param session is the current session what are closing.
+     * @param session is the current session which is closing
      * @throws IOException is throwing when broadcastClose(session) is closed
      *                     and it's trying to send message.
      */
     @OnClose
     public synchronized void onClose(@NotNull Session session) throws IOException {
-        /**Log closed connection*/
+        /**Logs closed connection*/
         System.out.println("onClose::" +  session.getId());
 
-        /**Remove player from our containers*/
+        /**Removes player from our containers*/
         ballsPlayers.remove(session.getId());
         sessions.remove(session.getId());
 
-        /**Broadcast to other players what current
+        /**Broadcasts to other players that the current
          * player (session.id()) is closed*/
         broadcastClose(session);
     }
@@ -97,48 +97,48 @@ public class WebSocketServer extends Thread {
      */
     @OnMessage
     public synchronized void onMessage(@NotNull String message, @NotNull Session session) throws IOException {
-        /**Log specific message from session*/
+        /**Logs a specific message from session*/
         System.out.println("onMessage::From=" + session.getId() + " Message=" + message);
 
-        /**Handle the situation when message is about
-         * a "simply" ball(message) that is eaten by player(session.id()).
-         * Message has form "bEaten:id_of_ball_that_was_eaten"
+        /**Handles the situation when message is about
+         * a "simple" ball (message) that is eaten by the player(session.id()).
+         * The message has form of "bEaten:id_of_ball_that_was_eaten"
          */
         if(message.contains("bEaten:")){
             eatenBall(message);
         }
 
-        /**Handle the situation when message is about
+        /**Handles the situation when the message is about
          * new connection from a client.
-         * Client sends initial coordinates of generated ball,
-         * and server store it.
-         * Message has form "start:x_coordinates,y_coordinates.
+         * Client sends the initial coordinates of the generated ball,
+         * and the server stores it.
+         * The message has the following form "start:x_coordinates,y_coordinates.
          */
         else if(message.contains("start:")){
             createBall(session,message);
         }
 
-        /**Handle the situation when message is about
+        /**Handles the situation when the message is about
          * a player(message) that was eaten by another player(session.id()).
-         * Message has form "pEaten:id_of_player_that_was_eaten".
+         *The message has the following form "pEaten:id_of_player_that_was_eaten".
          */
         else if(message.contains("pEaten:")){
             eatPlayer(message);
         }
 
-        /**Handle the situation when message is about
-         * position updates of player (session.id())
-         * Message has form "pos:x_coordinate;y_coordinate;radius"
+        /**Handles the situation when message is about
+         * updates the of the players (session.id())
+         * The message has form "pos:x_coordinate;y_coordinate;radius"
          */
         else if (message.contains("pos:")){
             broadcastPlayersToOnePlayer(message, session);
         }
 
-        /**Handle the situation when message
-         * was of different form,what was expected.
+        /**Handles the situation when the message
+         * has a different form, than expected.
          */
         else {
-            System.out.println("Message has different form of expected,message="+message);
+            System.out.println("Message has different form than expected,message="+message);
         }
     }
 
@@ -153,32 +153,32 @@ public class WebSocketServer extends Thread {
         System.out.println("onError::" + t.getMessage()+", Cause::"+t.getCause());
     }
 
-    /**This function broadcast all data of players (ballsPlayers)
+    /**This function broadcasts all data players (ballsPlayers)
      * to one player (session.getId()).
-     * It also update the current player position (message),
+     * It also updates the current player position (message),
      * using a Parser class.
      *
-     * @param message the position of player (session.getId())
-     *                and radius.Message has form :
+     * @param message the position of the player (session.getId())
+     *                and radius. The message has the following form :
      *                "pos:x_coordinate;y_coordinate;radius"
      * @param session session of current player.
      */
     private synchronized void broadcastPlayersToOnePlayer(@NotNull String message, @NotNull Session session) {
-        /**Check if player is in sessions.To prevent mistaken from client,
-         * ball can be added only on open session.
+        /**Checks if the player is in sessions. To prevent mistakes from the client,
+         * the ball can be added only on open session.
          * */
         if(sessions.containsKey(session.getId())) {
             /**Parsing x, y and radius*/
             parser.parsePos(message.substring(4));
 
-            /**Updating the position of player (session.getId()*/
+            /**Updating the position of the player (session.getId()*/
             ballsPlayers.put(session.getId(), new Ball(parser.x, parser.y, parser.r));
 
-            /**Broadcast the data of other players to
-             * current player (session.getId())
+            /**Broadcasts the data of the other players to
+             * the current player (session.getId())
              */
             ballsPlayers.forEach((key, value) -> {
-                /**It's used to synchronized the session,to not
+                /**It's used to synchronize the session,to not
                  * access the same session by multiple threads,
                  * otherwise it can throw IOException
                  * "The remote endpoint was in state
@@ -188,7 +188,7 @@ public class WebSocketServer extends Thread {
                 synchronized (session) {
                     /**Can throw IOException on
                      * session.getBasicRemote.sendText(),
-                     * if the session was closed from client.
+                     * if the session was closed by the client.
                      */
                     try {
                         session.getBasicRemote().sendText("ballP:" + key + ";" + value.getX() + ";" + value.getY() + ";" + value.getR());
@@ -200,24 +200,24 @@ public class WebSocketServer extends Thread {
         }
     }
 
-    /**This function broadcast all balls (ballsToEat)
-     * to current player (session.getID()).
+    /**This function broadcasts all balls (ballsToEat)
+     * to the current player (session.getID()).
      *
      * @param session current player.
      */
     private synchronized void broadcastBallsToOnePlayer(@NotNull Session session){
         ballsToEat.hashMapBalls.forEach((key, value) -> {
-            /**It's used to synchronized the session,to not
+            /**It's used to synchronize the session,to not
              * access the same session by multiple threads,
              * otherwise it can throw IOException
              * "The remote endpoint was in state
              * [TEXT_FULL_WRITING] which is
-             * an invalid state for called method"
+             * an invalid state for the called method"
              */
             synchronized (session) {
                 /**Can throw IOException on
                  * session.getBasicRemote.sendText(),
-                 * if the session was closed from client.
+                 * if the session was closed by the client.
                  */
                 try {
                     session.getBasicRemote().sendText("balls:" + key + ";" + value.getX() + ";" + value.getY());
@@ -228,21 +228,20 @@ public class WebSocketServer extends Thread {
         });
     }
 
-    /**This function is used to broadcast changed ball
+    /**This function is used to broadcast the changed ball
      * to all players (sessions).
      *
      * @param key the ID of the ball.
      * @param ball the ball itself.
      * @throws IOException session.getBasicRemote.sendText(),
-     *                     if the session was closed from client.
+     *                     if the session was closed by client.
      */
     private synchronized void broadcastChangedBallToAllPlayer (String key,Ball ball) throws IOException {
         for(Session sessionTemp : sessions.values()){
             /**I'm not sure about this,to synchronize sessionTemp
-             * because is local variable and it's generate every time
-             * on new thread,but if it's not synchronized, client have
-             * problems from time to time with draw the changed ball
-             * To refactor later.
+             * because it is a local variable and it's generated every time
+             * on the new threads, but if it's not synchronized, the client will have
+             * problems from time to time with drawing the changed ball
              */
             synchronized (sessionTemp) {
                 sessionTemp.getBasicRemote().sendText("balls:" + key + ";" + ball.getX() + ";" + ball.getY());
@@ -250,28 +249,28 @@ public class WebSocketServer extends Thread {
         }
     }
 
-    /**This function is used to generate new "simply" ball
+    /**This function is used to generate new "simple" ball
      * instead of eaten.
      *
-     * @param message message with ball what we generate.
-     *                message have form "bEaten:id_ball_eaten".
+     * @param message the message with ball that we generate.
+     *                the message has the following form "bEaten:id_ball_eaten".
      */
     private synchronized void eatenBall(@NotNull String message){
-        /**Because message have form "bEaten:id_ball_eaten"
-         * changedBall extract the id of ball that was eaten.
+        /**Because the message has the following form "bEaten:id_ball_eaten"
+         * changedBall extracts the id of the ball which was eaten.
          */
         String changedBall = message.substring(7);
 
-        /**Generate new coordinates of ball what was eaten,
+        /**Generates new coordinates of the ball which was eaten,
          * based on the id(changedBall).
          */
         ballsToEat.generateBall(Integer.parseInt(changedBall));
 
-        /**Broadcast changed "simple" ball (changedBall)
-         * to all players(from sessions).
+        /**Broadcasts changed "simple" ball (changedBall)
+         * for all the players(from sessions).
          * Can throw IOException if
          * session.getBasicRemote.sendText(), from broadcastChangedBall...
-         * if the session was closed from client.
+         * if the session was closed by the client.
          */
         try {
             broadcastChangedBallToAllPlayer(changedBall, ballsToEat.hashMapBalls.get(changedBall));
@@ -280,21 +279,21 @@ public class WebSocketServer extends Thread {
         }
     }
 
-    /**Broadcast closed connection to other players,
+    /**Broadcasts closed connection to other players,
      * to delete from their Map of players(to not render).
      *
-     * @param session the session what was closed.
+     * @param session the session which was closed.
      * @throws IOException sessionTemp.getBasicRemote.sendText(),
-     *                     if the session(sessionTemp) was closed from
+     *                     if the session(sessionTemp) was closed by
      *                     the client.
      */
     private synchronized void broadcastClose(Session session) throws IOException {
         for(Session sessionTemp :sessions.values()) {
             /**I'm not sure about this,to synchronize sessionTemp
-             * because is local variable and it's generate every time
-             * on new thread,but if it's not synchronized, client have
-             * problems from time to time with closing connection of
-             * player (session.id()).
+             * because it is a local variable and it's generated every time
+             * on new threads ,but if it's not synchronized, client will have
+             * problems from time to time with the closing connection of
+             * the player (session.id()).
              */
             //TODO To refactor later javadoc.
             synchronized (sessionTemp) {
@@ -304,35 +303,35 @@ public class WebSocketServer extends Thread {
     }
 
     /**A situation when a player eats another player.
-     * In this case,player what was eaten will be deleted from
-     * list of players(sessions) and his ball too(ballsPlayers).
+     * In this case, the player that was eaten will be deleted from
+     * the list of players(sessions) and so will his ball (ballsPlayers).
      *
-     * @param message message about eaten player.
-     *                Message has form "pEaten:id_of_eaten_player".
+     * @param message the message about an eaten player.
+     *                The message has the following form "pEaten:id_of_eaten_player".
      * @throws IOException sessions.get(toDelete).getBasicRemote().sendText()
-     *                     if the connection was closed from client side.
+     *                     if the connection was closed from by the client side.
      */
     private synchronized void eatPlayer(@NotNull String message) throws IOException {
-        /**Because message have form "pEaten:id_of_eaten_player",
-         * We extract id of eaten player.
+        /**Because the message has the following form "pEaten:id_of_eaten_player",
+         * We extract the id of the eaten player.
          */
         String toDelete = message.substring(7);
 
-        /**If string was not deleted before(can be because of the speed of
+        /**If the string was not deleted before(can be because of the speed of
          * Websocket,it can send 2 times the same message),
          * it will be deleted now.
          */
         if (sessions.containsKey(toDelete)) {
-            /**Log deleted player */
+            /**Logs the deleted player */
             System.out.println("Delete player:"+toDelete);
 
-            /**Send the player what should be delete "alert" message.
-             * It will close the connection from him,and throw message
-             * what he was eaten.
+            /**Sends the player that the "alert message" should be deleted.
+             * The connection will be closed by him, and throw out the message
+             * which was eaten.
              */
             sessions.get(toDelete).getBasicRemote().sendText("alert");
 
-            /**Delete the player(toDelete) from all players(sessions)
+            /**Deletes the player(toDelete) from the other players session (sessions)
              * and from players ball(ballsPlayers).
              */
             sessions.remove(toDelete);
@@ -340,34 +339,34 @@ public class WebSocketServer extends Thread {
         }
     }
 
-    /**Create new player ball (session.getId()) and send
-     * the notification about this to other balls to render.
+    /**Creates a new player ball (session.getId()) and sends
+     * the notification about this to other balls in order for them to render the balls.
      *
      * @param session current session
-     * @param message message from session.
-     *                Message has form "start:id_of_a_new_ball"
+     * @param message the message from session.
+     *                The message has the following form "start:id_of_a_new_ball"
      * @throws IOException session.getBasicRemote().sendText()
      *                     if the connection was closed from client side.
      */
     private synchronized void createBall(@NotNull Session session, @NotNull String message) throws IOException {
         /**Subtract the ID of the new ball,
-         * Message have form "start:id_of_a_new_ball".
+         * Message has the form of "start:id_of_a_new_ball".
          */
         parser.parseStart(message.substring(6));
 
-        /**store the player and create a new ball associated to this player.*/
+        /**stores the player and creates a new ball associated to this player.*/
         Ball tempBall = new Ball(parser.x, parser.y, Constants.RAD_INIT_BALL);
         ballsPlayers.put(session.getId(), tempBall);
 
-        /**Log the new ball*/
+        /**Logs the new ball*/
         System.out.println("Created new Ball Id:" + session.getId() + " X:%d" + tempBall.getX() + "Y:%d" + tempBall.getY());
 
-        /**Send the id of session back to the client,to store it.
-         * All game logic are based on session id to identify the Ball
+        /**Sends the id of the session back to the client, to store it.
+         * All the game's logic is based on the session's id to identify the Ball
          */
         session.getBasicRemote().sendText("id:" + session.getId());
 
-        /**Broadcast the new player to the others*/
+        /**Broadcasts the new player to the other ones*/
         broadcastBallsToOnePlayer(session);
     }
 }

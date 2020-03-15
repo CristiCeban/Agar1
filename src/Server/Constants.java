@@ -1,8 +1,8 @@
 package Server;
 
 /**Constants of Game Board Width and Height
- * It's also have radius of "simple" ball
- * what are eaten by player and initial radius
+ * It also has radius of "simple" ball
+ * which are eaten by the player and an initial radius
  * of the new player's ball.
  * @author Ceban Cristian
  * @author cebancristi4444@gmail.com
